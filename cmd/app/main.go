@@ -10,6 +10,7 @@ import (
 	"os/signal"
 
 	"github.com/AlexandrShapkin/go-auth-lab/internal/auth/basic"
+	"github.com/AlexandrShapkin/go-auth-lab/internal/storage"
 )
 
 const (
@@ -56,12 +57,18 @@ func main() {
 
 	flag.Parse()
 
+	userRepo := storage.NewUserRepo()
+	userRepo.Create(&storage.User{
+		Username: "username",
+		Password: "password",
+	})
+
 	var auth Auth
 
 	switch *mode {
 	case HTTPBasicMode:
 		slog.Info("Selected HTTP Basic Mode")
-		auth = basic.NewAuth()
+		auth = basic.NewAuth(userRepo)
 	case CookieMode:
 		fmt.Println("Cookie mode") // TODO: to implement
 	case JWTMode:

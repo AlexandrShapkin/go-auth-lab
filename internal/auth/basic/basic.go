@@ -6,13 +6,16 @@ import (
 	"strings"
 
 	"github.com/AlexandrShapkin/go-auth-lab/internal/auth"
+	"github.com/AlexandrShapkin/go-auth-lab/internal/storage"
 )
 
 const (
 	Prefix = "Basic "
 )
 
-type BasicAuth struct{}
+type BasicAuth struct {
+	UserRepo storage.UserRepo
+}
 
 // LoginHandler implements auth.Auth.
 func (b *BasicAuth) LoginHandler() http.HandlerFunc {
@@ -39,7 +42,8 @@ func (b *BasicAuth) ProtectedHandler() http.HandlerFunc {
 		}
 
 		pair := strings.SplitN(string(payload), ":", 2)
-		if len(pair) != 2 || pair[0] != "username" || pair[1] != "password" {
+		user, err := b.UserRepo.FindByUsername(pair[0])
+		if len(pair) != 2 || err != nil || !user.IsValidUser(pair[0], pair[1]) {
 			w.Header().Set("WWW-Authenticate", Prefix+`realm="Restricted"`)
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
@@ -49,6 +53,8 @@ func (b *BasicAuth) ProtectedHandler() http.HandlerFunc {
 	})
 }
 
-func NewAuth() auth.Auth {
-	return &BasicAuth{}
+func NewAuth(userRepo storage.UserRepo) auth.Auth {
+	return &BasicAuth{
+		UserRepo: userRepo,
+	}
 }
