@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+
+	"github.com/AlexandrShapkin/go-auth-lab/internal/auth/basic"
 )
 
 const (
@@ -58,7 +60,8 @@ func main() {
 
 	switch *mode {
 	case HTTPBasicMode:
-		fmt.Println("HTTP Basic mode") // TODO: to implement
+		slog.Info("Selected HTTP Basic Mode")
+		auth = basic.NewAuth()
 	case CookieMode:
 		fmt.Println("Cookie mode") // TODO: to implement
 	case JWTMode:
