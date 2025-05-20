@@ -10,6 +10,7 @@ import (
 	"os/signal"
 
 	"github.com/AlexandrShapkin/go-auth-lab/internal/auth/basic"
+	"github.com/AlexandrShapkin/go-auth-lab/internal/auth/cookie"
 	"github.com/AlexandrShapkin/go-auth-lab/internal/storage"
 )
 
@@ -70,7 +71,8 @@ func main() {
 		slog.Info("Selected HTTP Basic Mode")
 		auth = basic.NewAuth(userRepo)
 	case CookieMode:
-		fmt.Println("Cookie mode") // TODO: to implement
+		slog.Info("Selected Cookie Mode")
+		auth = cookie.NewAuth(userRepo)
 	case JWTMode:
 		fmt.Println("JWT Mode") // TODO: to implement
 	default:
