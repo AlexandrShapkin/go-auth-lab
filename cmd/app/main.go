@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -11,11 +10,13 @@ import (
 
 	"github.com/AlexandrShapkin/go-auth-lab/internal/auth/basic"
 	"github.com/AlexandrShapkin/go-auth-lab/internal/auth/cookie"
+	"github.com/AlexandrShapkin/go-auth-lab/internal/auth/jwt"
 	"github.com/AlexandrShapkin/go-auth-lab/internal/storage"
 )
 
 const (
 	Addr = ":8080"
+	SecretKey = "your-256-bit-secret"
 
 	HTTPBasicMode = "http_basic_auth"
 	CookieMode    = "cookie_auth"
@@ -74,7 +75,8 @@ func main() {
 		slog.Info("Selected Cookie Mode")
 		auth = cookie.NewAuth(userRepo)
 	case JWTMode:
-		fmt.Println("JWT Mode") // TODO: to implement
+		slog.Info("Selected JWT Mode")
+		auth = jwt.NewAuth([]byte(SecretKey), userRepo)
 	default:
 		slog.Info("Unknown mode, falling back to NoAuth")
 		auth = NewNoAuth()
