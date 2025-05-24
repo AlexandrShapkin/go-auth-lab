@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 
+	pauth "github.com/AlexandrShapkin/go-auth-lab/internal/auth"
 	"github.com/AlexandrShapkin/go-auth-lab/internal/auth/basic"
 	"github.com/AlexandrShapkin/go-auth-lab/internal/auth/cookie"
 	"github.com/AlexandrShapkin/go-auth-lab/internal/auth/jwt"
@@ -15,12 +16,13 @@ import (
 )
 
 const (
-	Addr = ":8080"
+	Addr      = ":8080"
 	SecretKey = "your-256-bit-secret"
 
 	HTTPBasicMode = "http_basic_auth"
 	CookieMode    = "cookie_auth"
 	JWTMode       = "jwt_auth"
+	RJWTMode      = "refresheble_jwt_auth"
 	NoAuthMode    = "no_auth"
 )
 
@@ -77,6 +79,9 @@ func main() {
 	case JWTMode:
 		slog.Info("Selected JWT Mode")
 		auth = jwt.NewAuth([]byte(SecretKey), userRepo)
+	case RJWTMode:
+		slog.Info("Selected Refresheble JWT Mode")
+		auth = jwt.NewRefreshebleAuth([]byte(SecretKey), []byte(SecretKey), userRepo)
 	default:
 		slog.Info("Unknown mode, falling back to NoAuth")
 		auth = NewNoAuth()
@@ -86,6 +91,9 @@ func main() {
 
 	mux.HandleFunc("/login", loggingMiddleware(auth.LoginHandler()))
 	mux.HandleFunc("/protected", loggingMiddleware(auth.ProtectedHandler()))
+	if rauth, ok := auth.(pauth.RefreshebleAuth); ok {
+		mux.HandleFunc("/refresh", loggingMiddleware(rauth.RefreshHandler()))
+	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
