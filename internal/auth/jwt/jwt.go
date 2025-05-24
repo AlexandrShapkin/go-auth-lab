@@ -37,6 +37,7 @@ func (j *JWTAuth) LoginHandler() http.HandlerFunc {
 		token, err := j.SessionManager.CreateSession(creds.Username)
 		if err != nil {
 			http.Error(w, "internal server error", http.StatusInternalServerError)
+			return
 		}
 
 		http.SetCookie(w, &http.Cookie{
