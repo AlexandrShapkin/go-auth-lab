@@ -2,28 +2,42 @@ package storage
 
 import "fmt"
 
-type User struct {
+type User interface {
+	GetUsername() string
+	GetPassword() string
+	IsValidUser(string, string) bool
+}
+
+type StorageUser struct {
 	Username string
 	Password string
 }
 
-func (u *User) IsValidUser(username, password string) bool {
+func (u *StorageUser) IsValidUser(username, password string) bool {
 	return u.Username == username && u.Password == password
 }
 
+func (u *StorageUser) GetUsername() string {
+	return u.Username
+}
+
+func (u *StorageUser) GetPassword() string {
+	return u.Password
+}
+
 type UserRepo interface {
-	Create(user *User) error
-	FindByUsername(username string) (*User, error)
+	Create(user User) error
+	FindByUsername(username string) (User, error)
 	DeleteByUsername(username string) error
 }
 
 type UserRepoImpl struct {
-	Users map[string]*User
+	Users map[string]User
 }
 
 // Create implements UserRepo.
-func (u *UserRepoImpl) Create(user *User) error {
-	u.Users[user.Username] = user
+func (u *UserRepoImpl) Create(user User) error {
+	u.Users[user.GetUsername()] = user
 	return nil
 }
 
@@ -37,7 +51,7 @@ func (u *UserRepoImpl) DeleteByUsername(username string) error {
 }
 
 // FindByUsername implements UserRepo.
-func (u *UserRepoImpl) FindByUsername(username string) (*User, error) {
+func (u *UserRepoImpl) FindByUsername(username string) (User, error) {
 	user, ok := u.Users[username]
 	if !ok {
 		return nil, fmt.Errorf("user not found")
@@ -47,6 +61,6 @@ func (u *UserRepoImpl) FindByUsername(username string) (*User, error) {
 
 func NewUserRepo() UserRepo {
 	return &UserRepoImpl{
-		Users: make(map[string]*User),
+		Users: make(map[string]User),
 	}
 }

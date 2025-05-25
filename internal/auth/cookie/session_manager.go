@@ -21,7 +21,7 @@ func (c *CookieSessionManager) CreateSession(username string) (string, error) {
 }
 
 // ValidateSession implements auth.SessionManager.
-func (c *CookieSessionManager) ValidateSession(token string) (*storage.User, error) {
+func (c *CookieSessionManager) ValidateSession(token string) (storage.User, error) {
 	if username, ok := c.Sessions[token]; ok {
 		return c.Repo.FindByUsername(username)
 	}
@@ -31,6 +31,6 @@ func (c *CookieSessionManager) ValidateSession(token string) (*storage.User, err
 func NewSessionManager(repo storage.UserRepo) auth.SessionManager {
 	return &CookieSessionManager{
 		Sessions: make(map[string]string),
-		Repo: repo,
+		Repo:     repo,
 	}
 }

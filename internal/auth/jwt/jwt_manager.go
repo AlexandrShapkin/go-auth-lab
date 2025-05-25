@@ -31,7 +31,7 @@ func (j *JWTManager) CreateSession(username string) (string, error) {
 }
 
 // ValidateSession implements auth.SessionManager.
-func (j *JWTManager) ValidateSession(tokenString string) (*storage.User, error) {
+func (j *JWTManager) ValidateSession(tokenString string) (storage.User, error) {
 	token, err := gojwt.Parse(tokenString, func(t *gojwt.Token) (interface{}, error) {
 		return j.SecretKey, nil
 	})

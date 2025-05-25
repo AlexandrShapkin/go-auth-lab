@@ -62,7 +62,7 @@ func main() {
 	flag.Parse()
 
 	userRepo := storage.NewUserRepo()
-	userRepo.Create(&storage.User{
+	userRepo.Create(&storage.StorageUser{
 		Username: "username",
 		Password: "password",
 	})
